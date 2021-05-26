@@ -20,6 +20,8 @@ import com.github.dhaval2404.colorpicker.model.ColorShape;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.slider.RangeSlider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -28,6 +30,8 @@ import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     private ImageView ivUndoMain, ivRedoMain, ivSaveMain, ivColorMain, ivBrushMain, ivEraseMain;
     private RangeSlider rangeSliderMain;
     private PaintWindow paintWindowMain;
+
+    private FirebaseStorage firebaseStorage;
+    private FirebaseFirestore firebaseFirestore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +60,10 @@ public class MainActivity extends AppCompatActivity {
                 paintWindowMain.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
+
+        // firebase
+        firebaseStorage = FirebaseStorage.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
         // onClicks
         ivUndoMain.setOnClickListener(new View.OnClickListener() {
@@ -155,18 +166,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void uploadImageToDatabase(Bitmap bitmap) {
+        String currentDTUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG,100, baos);
 
-        @SuppressLint("SimpleDateFormat") final StorageReference reference = FirebaseStorage.getInstance().getReference()
+        @SuppressLint("SimpleDateFormat") final StorageReference reference = firebaseStorage.getReference()
                 .child("PaintImages")
-                .child(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + ".jpeg");
+                .child(currentDTUTC + ".jpeg");
 
         reference.putBytes(baos.toByteArray())
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         Toast.makeText(MainActivity.this, "Image Saved!!", Toast.LENGTH_SHORT).show();
+                        saveDataInFirestore(currentDTUTC);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -174,6 +187,25 @@ public class MainActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception e) {
                         Log.e("MainActivity","onFailure: saving image to database method, "+e.getCause());
                         Toast.makeText(MainActivity.this, "Error Saving Image!!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void saveDataInFirestore(String currentDTUTC) {
+        DocumentReference documentReference = firebaseFirestore.collection("PaintImages").document(currentDTUTC);
+
+        Map<String, Object> image = new HashMap<>();
+        image.put("Name", currentDTUTC + ".jpeg");
+
+        documentReference.set(image)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override public void onSuccess(Void aVoid) {
+                        Log.i("MainActivity", "onSuccess: image name stored in Firestore");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override public void onFailure(@NonNull Exception e) {
+                        Log.i("MainActivity", "onFailure: image name stored in Firestore");
                     }
                 });
     }
