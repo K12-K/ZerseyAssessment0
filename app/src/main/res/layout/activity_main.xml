@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <GridLayout
+        android:id="@+id/glMain"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
+        android:columnCount="1"
+        android:rowCount="6">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/light_grey_white"
+            app:cardCornerRadius="2dp"
+            app:cardElevation="1dp">
+
+            <ImageView
+                android:id="@+id/ivSaveMain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:maxWidth="45dp"
+                android:maxHeight="45dp"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_save_50" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/light_grey_white"
+            app:cardCornerRadius="2dp"
+            app:cardElevation="1dp">
+
+            <ImageView
+                android:id="@+id/ivColorMain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:maxWidth="45dp"
+                android:maxHeight="45dp"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_color_50" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/light_grey_white"
+            app:cardCornerRadius="2dp"
+            app:cardElevation="1dp">
+
+            <ImageView
+                android:id="@+id/ivBrushMain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:maxWidth="45dp"
+                android:maxHeight="45dp"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_brush_50" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/light_grey_white"
+            app:cardCornerRadius="2dp"
+            app:cardElevation="1dp">
+
+            <ImageView
+                android:id="@+id/ivEraseMain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:maxWidth="45dp"
+                android:maxHeight="45dp"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_eraser_50" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/light_grey_white"
+            app:cardCornerRadius="2dp"
+            app:cardElevation="1dp">
+
+            <ImageView
+                android:id="@+id/ivUndoMain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:maxWidth="45dp"
+                android:maxHeight="45dp"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_undo_50" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/light_grey_white"
+            app:cardCornerRadius="2dp"
+            app:cardElevation="1dp">
+
+            <ImageView
+                android:id="@+id/ivRedoMain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:maxWidth="45dp"
+                android:maxHeight="45dp"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_redo_50" />
+        </androidx.cardview.widget.CardView>
+    </GridLayout>
+
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/rangeSliderMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_toRightOf="@+id/glMain"
+        android:background="@color/grey_50"
+        android:elevation="2dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_margin="5dp"
+        android:layout_toRightOf="@+id/glMain"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="1dp">
+
+        <com.example.assessment0.PaintWindow
+            android:id="@+id/paintWindowMain"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

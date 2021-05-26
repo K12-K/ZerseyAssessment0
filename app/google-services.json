@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "694287591077",
+    "project_id": "zerseyassessment0",
+    "storage_bucket": "zerseyassessment0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:694287591077:android:0587db4e439b4faa8e4f4c",
+        "android_client_info": {
+          "package_name": "com.example.assessment0"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "694287591077-j2n5tqksmd5751mi13t18uloqj4hog6m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCw0N8pM-lLErm4tbcwzdqgftpkui9z4xo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "694287591077-j2n5tqksmd5751mi13t18uloqj4hog6m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
