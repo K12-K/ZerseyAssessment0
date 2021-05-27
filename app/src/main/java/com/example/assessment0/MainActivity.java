@@ -4,8 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -33,15 +37,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageView ivUndoMain, ivRedoMain, ivSaveMain, ivColorMain, ivBrushMain, ivEraseMain;
+    private ImageView ivUndoMain, ivRedoMain, ivSaveMain, ivColorMain, ivBrushMain, ivEraseMain, ivMenuMain;
     private RangeSlider rangeSliderMain;
     private PaintWindow paintWindowMain;
 
     private FirebaseStorage firebaseStorage;
     private FirebaseFirestore firebaseFirestore;
+
+    private String userUniqueId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
         firebaseStorage = FirebaseStorage.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
+        // uniqueId
+        getUserUniqueId();
+
         // onClicks
         ivUndoMain.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.i("kk", "Uploading Image...");
-                uploadImageToDatabase(paintWindowMain.save());
+                uploadImageToStorageDatabase(paintWindowMain.save());
             }
         });
 
@@ -143,6 +153,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        ivMenuMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, PaintImagesActivity.class).putExtra("userUniqueId", userUniqueId));
+            }
+        });
+
         rangeSliderMain.addOnChangeListener(new RangeSlider.OnChangeListener() {
             @Override
             public void onValueChange(@NonNull RangeSlider slider, float value, boolean fromUser) {
@@ -161,25 +178,45 @@ public class MainActivity extends AppCompatActivity {
         ivColorMain = findViewById(R.id.ivColorMain);
         ivBrushMain = findViewById(R.id.ivBrushMain);
         ivEraseMain = findViewById(R.id.ivEraseMain);
+        ivMenuMain = findViewById(R.id.ivMenuMain);
         rangeSliderMain = findViewById(R.id.rangeSliderMain);
         paintWindowMain = findViewById(R.id.paintWindowMain);
     }
 
-    private void uploadImageToDatabase(Bitmap bitmap) {
+    private void getUserUniqueId() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences("UniqueIdSharedPreference", Context.MODE_PRIVATE);
+        userUniqueId = sharedPreferences.getString("userUniqueId", "-1");
+        if (userUniqueId.trim().equals("-1")) {
+            userUniqueId = UUID.randomUUID().toString();
+            sharedPreferences.edit()
+                    .putString("userUniqueId", userUniqueId.trim())
+                    .apply();
+        }
+        Log.i("MainActivity", "uniqueId ::: " + userUniqueId);
+    }
+
+    private void uploadImageToStorageDatabase(Bitmap bitmap) {
         String currentDTUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        String imageName = currentDTUTC + ".jpeg";
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG,100, baos);
 
         @SuppressLint("SimpleDateFormat") final StorageReference reference = firebaseStorage.getReference()
                 .child("PaintImages")
-                .child(currentDTUTC + ".jpeg");
+                .child(userUniqueId)
+                .child(imageName);
 
         reference.putBytes(baos.toByteArray())
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         Toast.makeText(MainActivity.this, "Image Saved!!", Toast.LENGTH_SHORT).show();
-                        saveDataInFirestore(currentDTUTC);
+                        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                saveImageDataInFirestore(currentDTUTC, imageName, String.valueOf(uri));
+                            }
+                        });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -191,11 +228,12 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void saveDataInFirestore(String currentDTUTC) {
-        DocumentReference documentReference = firebaseFirestore.collection("PaintImages").document(currentDTUTC);
+    private void saveImageDataInFirestore(String currentDTUTC, String imageName, String imageUrl) {
+        DocumentReference documentReference = firebaseFirestore.collection("PaintImages " + userUniqueId).document(currentDTUTC);
 
         Map<String, Object> image = new HashMap<>();
-        image.put("Name", currentDTUTC + ".jpeg");
+        image.put("Name", imageName);
+        image.put("ImageUrl", imageUrl);
 
         documentReference.set(image)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
